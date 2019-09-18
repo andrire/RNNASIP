@@ -1,18 +1,16 @@
-> Copyright (c) 2019 ETH Zurich, Integrated System Laboratory, Renzo Andri 
-> This is the open sourced version of the IIS internal repo https://iis-git.ee.ethz.ch/andri/RNNASIP.git 
-
+> Copyright (c) 2019 ETH Zurich, Integrated System Laboratory, Renzo Andri > This is the open sourced version of the IIS internal repo https://iis-git.ee.ethz.ch/andri/RNNASIP.git 
 
 # RNN ASIP
 This is the main repository for the RNN Extension for PULP and tzscale (Synopsys)
 
 The project has the following sub-repos and dependencies:
 
-- RNN Pulpissimo (https://iis-git.ee.ethz.ch/andri/rnn-pulpissimo.git): Pulpissimo extended by special instructions
-- RNN RISC-V core (https://iis-git.ee.ethz.ch/andri/rnn-riscv.git): Includes the RISC-V core with the RNN Extensions.
+- RNN Pulpissimo (https://github.com/pulp-platform/pulpissimo/tree/rnnext or internal https://iis-git.ee.ethz.ch/andri/rnn-pulpissimo.git): Pulpissimo extended by special instructions
+- RNN RISC-V core (https://github.com/pulp-platform/riscv/tree/rnn_extension or internal https://iis-git.ee.ethz.ch/andri/rnn-riscv.git): Includes the RISC-V core with the RNN Extensions.
 - RISC-V toolchain with RNN-Extensions (https://github.com/pulp-platform/pulp-riscv-gnu-toolchain/tree/renzo-isa)
 - The PULP SDK and ISS Simulator (https://github.com/pulp-platform/pulp-sdk.git)
 
-## Getting Started
+# Getting Started
 
 First of all, clone this repo (`rnn-pulpissimo` or `pulpissimo/rnnext`) and follow these instructions.
 
@@ -59,7 +57,7 @@ source ${PULP_PROJECT_HOME}/configs/platfom-gvsoc.sh
 source ${PULP_PROJECT_HOME}/sourceme.sh
 ```
 
-### Testing the SDK
+## Testing the SDK
 
 The SDK build should have installed the SDK under `pkg/sdk/dev`.
 
@@ -78,16 +76,20 @@ Then you can go to the folder `pulp-rt-examples/hello` and execute:
     $make conf 
     $make clean all run
 
-# Generating the RTL platform
+Under ```sourcecode/rnnSampleCode```, you find some basic tests using the RNN extensions.
+
+## Generating the RTL platform
 ```
 git clone https://github.com/pulp-platform/pulpissimo.git pulp_platform_rnnext
 echo "export VSIM_PATH=$(pwd)/sim" >> ${PULP_PROJECT_HOME}/sourceme.sh
-
 ```
-## Repo Structure
+Then follow the instructions in the README of the repo.
+
+### Repo Structure
 
 - `docs/` Documentation related scripts and meeting protocols
 - `sourcecode/` C implementation and tzscale implementation (see README)
 - `sourcecode/Basic_Kernels` C implementation of ML/RNN kernels (see README for more details)
+- `sourcecode/funcApprox` Matlab scripts to evaluate the tanh/sigmoid extension (see README)
 - `sourcecode/rnnSampleCode` Verification of the rnn Extensions (see README)
 - `sourcecode/tzscale` tzscale with RNN extensions (see README)

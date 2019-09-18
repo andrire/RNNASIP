@@ -1,0 +1,7 @@
+build/
+build2/
+build_bk/
+test.c.bak
+test.c~
+working_envvar
+

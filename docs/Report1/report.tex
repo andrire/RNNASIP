@@ -1,0 +1,143 @@
+% Copyright (c) 2019 ETH Zurich, Integrated System Laboratory, Renzo Andri
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                                                                 %
+%%%%%     <file_name>.tex                                             %
+%%%%%                                                                 %
+%%%%% Author:      <author>                                           %
+%%%%% Created:     <date>                                             %
+%%%%% Description: <description>                                      %
+%%%%%                                                                 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                                                                 %
+%%%%%     Document Class                                              %
+%%%%%                                                                 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[%
+ oneside,      % Use the same margins for odd and even pages (cannot
+               % be used with the 'twoside' option). 
+% twoside,      % Use different margins for odd and even pages (cannot
+               % be used with the 'oneside' option).
+ openany,      % Open chapters on odd and even pages.
+ halfparskip,  % Create small spaces for new paragraphs but no indents.
+]{scrbook}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                                                                 %
+%%%%%     Preamble                                                    %
+%%%%%                                                                 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Load the preamble from another file.
+\input{./preamble/preamble}
+
+%%%%%
+%%%%% Load the glossaries.
+%%%%%
+\input{./glossaries/glossaries}
+
+% Define which source files should actually been processed.
+%\includeonly{./content/06-design_implementation}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                                                                 %
+%%%%%     Document Settings                                           %
+%%%%%                                                                 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%% Mandatory title page settings.
+\title{RNN Acceleration Extension for RISC-V}
+\author{Renzo Andri}
+\email{renzo.andri@iis.ee.ethz.ch}
+\date{\today}
+\semester{Autumn 2018}
+\reporttype{Project Report I}
+\firstsup{Prof. Dr. Luca Benini, lbenini@iis.ee.ethz.ch}
+\secondsup{Tomas Henriksson, Thomas.Henriksson@huawei.com}
+% \professor{Prof. Dr. A. N. Other, an@other.com}
+
+%%%%% Optional title page settings.
+\titlelogo{./figures/rnn_title}  % Title page logo path.
+\logoheight{7cm}                      % Height of the title page logo.
+\titlepagemargin{3cm}                 % Margin on the title page.
+% \newcommand*{\SHOWNOTES}{}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                                                                 %
+%%%%%     Start of Document                                           %
+%%%%%                                                                 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+% Prepare document for minitoc insertions.
+\dominitoc
+
+\frontmatter
+
+% Create title.
+\input{./content/00_0_title}
+%\maketitle
+
+% Include acknowledgements, abstract, etc...
+% \include{./content/00_1_acknowledgements}
+%\include{./content/00_2_abstract}
+% \include{./content/00_3_authorship}
+
+% Insert table of contents, list of figures, and list of tables.
+\tableofcontents
+\listoffigures
+\listoftables
+
+% Print list of acronyms.
+\setlength{\glslistdottedwidth}{0.2\linewidth}
+\printglossary[type=\acronymtype,style=listdotted,title=List of Acronyms]
+
+
+%%%%%
+%%%%% Start the actual main content part.
+%%%%%
+\mainmatter
+
+% Include the actual content files.
+%\include{./content/01_introduction}
+\include{./content/02_content}
+
+% \include{./content/03_benchmarks}
+% \include{./content/04_implementation}
+
+
+% \include{./content/07_results}
+%\include{./content/08_conclusion}
+
+
+%%%%%
+%%%%% Start of additional parts.
+%%%%%
+\appendix
+
+% \include{./content/z_01_appendix_examples}
+% \include{./content/z_02_directories}
+% \include{./content/z_03_latex_tips}
+% \include{./content/z_04_writing_tips}
+
+\backmatter
+
+% Print the main glossary.
+\printglossary[type=main,title=Glossary]
+
+
+% Print the bibliography.
+% \nocite*{} % Print non-cited references as well.
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,./bib/main,./mendeley}
+
+
+\end{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                                                                 %
+%%%%%     End of Document                                             %
+%%%%%                                                                 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

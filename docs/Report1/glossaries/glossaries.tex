@@ -1,0 +1,64 @@
+% Copyright (c) 2019 ETH Zurich, Integrated System Laboratory, Renzo Andri 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                                                                 %
+%%%%%     Make Glossaries                                             %
+%%%%%                                                                 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Required to generate the index for the glossaries.
+\makeglossaries
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                                                                %
+%%%%%     Definitions of all glossary entries which will appear in   %
+%%%%%     the default (main) glossary.                               %
+%%%%%                                                                %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newglossaryentry{rrm_gl}{name={Radio Resource Management},description={Resource Allocation (e.g. spectral bands and energy levels, ...) in the Radio setting.}}
+\newglossaryentry{phoneme}{name=phoneme,description={Smallest sound unit in a language.}}
+
+\newglossaryentry{rnn_gl}{name=RNN,description={Recurrent Neural Networks are Neural Networks with recurrent paths to exploit sequential behaviour.}}
+
+\newglossaryentry{alphafair}{name=\textgreek{α}-fairness,description={Fairness metric in Radio Resource Management \cite{touati2002utility}}}
+
+
+
+% Add all glossary entries to the glossary, even if they have not been
+% referenced.
+\glsaddall[types={main}]
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%                                                                %
+%%%%%     Definitions of all acronyms which will appear in the list  %
+%%%%%     of acronyms.                                               %
+%%%%%                                                                %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newacronym{iis}{IIS}{Integrated Systems Laboratory}
+\newacronym{rrm}{RRM}{Radio Resource Management}
+\newacronym{ct}{CT}{Computed Tomography}
+\newacronym{iid}{i.i.d.}{independent and identically distributed}
+\newacronym{hmm}{HMM}{Hidden Markov Model}
+\newacronym{rnn}{RNN}{Recurrent Neural Network}
+\newacronym{cnn}{CNN}{Convolutional Neural Network}
+\newacronym{mlp}{MLP}{Multi-Layer Perceptron}
+\newacronym{lstm}{LSTM}{Long Short-Term Memory}
+\newacronym{gru}{GRU}{Gated Recurrent Unit}
+\newacronym{dqn}{DQN}{Deep Q-Network}
+\newacronym{iot}{IoT}{Internet of Things}
+\newacronym{cci}{CCI}{Co-channel interference}
+\newacronym{lte-u}{LTE-U}{Long Term Evolution in unlicensed spectrum}
+\newacronym{sbs}{SBS}{Small (cell) Base Stations}
+\newacronym{dsa}{DSA}{Dynamic Spectrum access}
+\newacronym{awgn}{AWGN}{Additive White Gaussian Noise}
+\newacronym{rsrp}{RSRP}{Reference Signal Received Power}
+\newacronym{wcs}{WCS}{Wireless Communication Systems}
+\newacronym{csi}{CSI}{Channel State Information}
+\newacronym{qos}{QoS}{Quality of Service}
+
+
+% Add all acronyms to the list of acronyms even if they have not been
+% referenced.
+\glsaddall[types={\acronymtype}]
