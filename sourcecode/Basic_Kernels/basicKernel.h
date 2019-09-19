@@ -258,6 +258,8 @@ inline int32_t tzscale_sig(int32_t x) {return ext_act(x,1);}
 #define register_attribute register
 // int32_t rD; v2s rs1, rs2;
 #define SDOTP_GENERIC(rD, rs1, rs2) rD = __SUMDOTP2(rs1, rs2, rD);
+#define PL_SDOTP0(rD, rAddr, rB) asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (rD),  "+r" (rAddr) : "r" (rB) )
+#define PL_SDOTP1(rD, rAddr, rB) asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (rD),  "+r" (rAddr) : "r" (rB) )
 #endif
 
 
@@ -270,7 +272,19 @@ void  endPerf ();
 #endif
 
 
-inline int shiftAndAct(int value, int activationFunction);
+inline int shiftAndAct(int value, int activationFunction) {
+    int temp;
+#ifdef DOACTONTHEFLY
+      temp = value>>(q_fraqP1); // TODO merging shifting and tanh/sigmoid instruction
+      switch(activationFunction) {
+        case ACT_NONE: return temp; break;
+        case ACT_TANH: return generic_tanh(temp); break;
+        case ACT_SIG:  return generic_sig(temp); break;
+      }
+#else
+      return value>>(q_fraqP1);
+#endif
+    }
 
 void NOINLINE LinearLayer (
         // Layer Attributes
@@ -343,17 +357,17 @@ int NOINLINE Conv2dLayer (
     data_t * __restrict__ inFeatures,
     data_t * __restrict__ outFeatures);
 
-inline float  ALWAYS_INLINE  expTailor(int n, float x);
+// inline float  ALWAYS_INLINE  expTailor(int n, float x);
 inline data_t  ALWAYS_INLINE Tanh(data_t value);
-inline v2s ALWAYS_INLINE Tanh_SIMD(v2s value);
-inline data_t ALWAYS_INLINE Sgn(data_t value);
+// inline v2s ALWAYS_INLINE Tanh_SIMD(v2s value);
+// inline data_t ALWAYS_INLINE Sgn(data_t value);
 void NOINLINE SigLayer (
         // Layer Attributes
     int TensorSize,
     data_t * __restrict__ Features);
 inline data_t sig(data_t value);
 
-inline v2s sig_SIMD(v2s value);
+// inline v2s sig_SIMD(v2s value);
 
 void NOINLINE AddTensor (
         // Layer Attributes

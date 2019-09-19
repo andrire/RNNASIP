@@ -51,6 +51,46 @@ void endPerf () {
 }
 #endif
 
+/** @brief Sigmoid Activation Function
+ *
+ *  @param value input varialbe
+ *  @return sigmoid of the input variable
+ */
+inline data_t sig(data_t value) {
+  data_t a = value;
+  unsigned int lutsize = 16;
+  unsigned int value1 = 4096;
+  unsigned int value0p999 = 4095;
+  int m;
+  int q;
+  int q_signed;
+  unsigned short sign = a<0 ? 1 : 0;
+  int tmp;
+  int mac_result;
+  int mac_result_signed;
+  data_t abs_a;
+  if(sign==0x1) {
+    abs_a = -a;
+  } else {
+    abs_a = (a);
+  }
+
+  tmp = abs_a>>(13-3); 
+  if(tmp>=lutsize) {
+    return (sign)?(data_t)0: (data_t)value1;
+  } else {
+    m = lut_sig_m[tmp];
+    q =lut_sig_q[tmp];
+    mac_result = (m*abs_a+q)>>12;
+    mac_result_signed = (sign==1)? ~mac_result : mac_result;
+    if(sign==1) {
+       return  (value0p999+(mac_result_signed)); // 1-(mx+q)=4096+(~mac_result+1)=4095+(~mac_result)
+    } else {
+      return mac_result_signed;
+    }
+  }
+}
+
 /** @brief Runs a neural network
  *
  *  Iterates through all the layers while passing the intermediate FM with a double 
@@ -256,7 +296,7 @@ void NOINLINE LinearLayer (
   #endif
 
   data_t  * bias_ptr   = bias;
-  v2s     * weight_ptr = weight;
+  v2s     * weight_ptr = (v2s*)weight;
   data_t  * outFeatures_ptr = outFeatures;
   int outFeaturesPerTile = 1;
 
@@ -328,26 +368,26 @@ void NOINLINE LinearLayer (
       temp13 = (int32_t)bias_ptr[o_tile*outFeaturesPerTile+OUTPUTBUFFER-2]<<(q_fraqP1);
       temp14 = (int32_t)bias_ptr[o_tile*outFeaturesPerTile+OUTPUTBUFFER-1]<<(q_fraqP1);
 
-      addr0  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 0))];
-      addr1  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 1))];
-      addr2  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 2))];
-      addr3  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 3))];
-      addr4  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 4))];
-      addr5  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 5))];
-      addr6  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 6))];
-      addr7  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 7))];
-      addr8  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 8))];
-      addr9  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 9))];
-      addr10 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+10))];
-      addr11 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+11))];
-      addr12 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+12))];
-      addr13 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+OUTPUTBUFFER-2))];
-      addr14 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+OUTPUTBUFFER-1))];
+      addr0  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 0))];
+      addr1  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 1))];
+      addr2  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 2))];
+      addr3  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 3))];
+      addr4  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 4))];
+      addr5  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 5))];
+      addr6  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 6))];
+      addr7  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 7))];
+      addr8  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 8))];
+      addr9  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 9))];
+      addr10 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+10))];
+      addr11 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+11))];
+      addr12 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+12))];
+      addr13 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+OUTPUTBUFFER-2))];
+      addr14 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+OUTPUTBUFFER-1))];
 
           asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload first weight
           asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (x0), "+r" (addr1) : "r" (x0) ); // preload first weight
 
-          in_addr = (((v2s*)inFeatures));
+          in_addr = (uint32_t) (((v2s*)inFeatures));
           for(int i=0; i<inFeaturesSizeP4; i++) {
               v2s inF_temp;//  = ((v2s*)inFeatures)[2*i];
               v2s inF_temp2;// = ((v2s*)inFeatures)[2*i+1];
@@ -651,16 +691,16 @@ void NOINLINE LinearLayer (
             temp3 = (int32_t)bias_ptr[o_tile*outFeaturesPerTile+3]<<(q_fraqP1);
 
           // }
-            addr0 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
-            addr1 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
-            addr2 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+2))];
-            addr3 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+3))];
+            addr0 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
+            addr1 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
+            addr2 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+2))];
+            addr3 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+3))];
 
 
           asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload first weight
           asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (x0), "+r" (addr1) : "r" (x0) ); // preload first weight
 
-          in_addr = (((v2s*)inFeatures));
+          in_addr = (uint32_t)(((v2s*)inFeatures));
           for(int i=0; i<inFeaturesSizeP4; i++) {
               v2s inF_temp;//  = ((v2s*)inFeatures)[2*i];
               v2s inF_temp2;// = ((v2s*)inFeatures)[2*i+1];
@@ -716,8 +756,8 @@ void NOINLINE LinearLayer (
           // temp2 = (int32_t)bias[o_tile*outFeaturesPerTile+2]<<(q_fraqP1);
           // temp3 = (int32_t)bias[o_tile*outFeaturesPerTile+3]<<(q_fraqP1);
           // }
-            addr0 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
-            addr1 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
+            addr0 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
+            addr1 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
           // addr2 = &((v2s*)weight)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+2))];
           // addr3 = &((v2s*)weight)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+3))];
           asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload no compute
@@ -1999,14 +2039,14 @@ int NOINLINE Conv2dLayer (
                                             +(w_out+kw_slide_start)* _layer->attributes[LAY_CONV_IN]/2;
                                             for(int kw=kw_slide_start; kw <= kw_slide_stop;kw++)
                                             {
-                                             addr0  = &((v2s*)param_simd)[param_id_base];
-                                             addr1  = &((v2s*)param_simd)[param_id_base+1*output_channel_offset];
-                                             addr2  = &((v2s*)param_simd)[param_id_base+2*output_channel_offset];
-                                             addr3  = &((v2s*)param_simd)[param_id_base+3*output_channel_offset];
-                                             addr4  = &((v2s*)param_simd)[param_id_base+4*output_channel_offset];
-                                             addr5  = &((v2s*)param_simd)[param_id_base+5*output_channel_offset];
-                                             addr6  = &((v2s*)param_simd)[param_id_base+output_channel_offset*(OUTPUTBUFFER-2)];
-                                             addr7  = &((v2s*)param_simd)[param_id_base+output_channel_offset*(OUTPUTBUFFER-1)];
+                                             addr0  = (uint32_t) &((v2s*)param_simd)[param_id_base];
+                                             addr1  = (uint32_t) &((v2s*)param_simd)[param_id_base+1*output_channel_offset];
+                                             addr2  = (uint32_t) &((v2s*)param_simd)[param_id_base+2*output_channel_offset];
+                                             addr3  = (uint32_t) &((v2s*)param_simd)[param_id_base+3*output_channel_offset];
+                                             addr4  = (uint32_t) &((v2s*)param_simd)[param_id_base+4*output_channel_offset];
+                                             addr5  = (uint32_t) &((v2s*)param_simd)[param_id_base+5*output_channel_offset];
+                                             addr6  = (uint32_t) &((v2s*)param_simd)[param_id_base+output_channel_offset*(OUTPUTBUFFER-2)];
+                                             addr7  = (uint32_t) &((v2s*)param_simd)[param_id_base+output_channel_offset*(OUTPUTBUFFER-1)];
 
                  asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload first weight
                  asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (x0), "+r" (addr1) : "r" (x0) ); // preload first weight
@@ -2150,10 +2190,10 @@ int NOINLINE Conv2dLayer (
                                             +(w_out+kw_slide_start)* _layer->attributes[LAY_CONV_IN]/2;
                                             for(int kw=kw_slide_start; kw <= kw_slide_stop;kw++)
                                             {
-                                             addr0  = &((v2s*)param_simd)[param_id_base];
-                                             addr1  = &((v2s*)param_simd)[param_id_base+1*output_channel_offset];
-                                             addr6  = &((v2s*)param_simd)[param_id_base+output_channel_offset*2];
-                                             addr7  = &((v2s*)param_simd)[param_id_base+output_channel_offset*3];
+                                             addr0  = (uint32_t) &((v2s*)param_simd)[param_id_base];
+                                             addr1  = (uint32_t) &((v2s*)param_simd)[param_id_base+1*output_channel_offset];
+                                             addr6  = (uint32_t) &((v2s*)param_simd)[param_id_base+output_channel_offset*2];
+                                             addr7  = (uint32_t) &((v2s*)param_simd)[param_id_base+output_channel_offset*3];
 
                  asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload first weight
                  asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (x0), "+r" (addr1) : "r" (x0) ); // preload first weight
@@ -2243,8 +2283,8 @@ int NOINLINE Conv2dLayer (
                                             for(int kw=kw_slide_start; kw <= kw_slide_stop;kw++)
                                             {
 
-                                             addr6  = &((v2s*)param_simd)[param_id_base+output_channel_offset*0];
-                                             addr7  = &((v2s*)param_simd)[param_id_base+output_channel_offset*1];
+                                             addr6  = (uint32_t) &((v2s*)param_simd)[param_id_base+output_channel_offset*0];
+                                             addr7  = (uint32_t) &((v2s*)param_simd)[param_id_base+output_channel_offset*1];
 
                  asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr6) : "r" (x0) ); // preload first weight
                  asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (x0), "+r" (addr7) : "r" (x0) ); // preload first weight
@@ -2481,14 +2521,14 @@ int NOINLINE Conv2dLayer (
                                             +(w_out+kw_slide_start)* _layer->attributes[LAY_CONV_IN]/2;
                                             for(int kw=kw_slide_start; kw <= kw_slide_stop;kw++)
                                             {
-                                             addr0  = &((v2s*)param_simd)[param_id_base];
-                                             addr1  = &((v2s*)param_simd)[param_id_base+1*output_channel_offset];
-                                             addr2  = &((v2s*)param_simd)[param_id_base+2*output_channel_offset];
-                                             addr3  = &((v2s*)param_simd)[param_id_base+3*output_channel_offset];
-                                             addr4  = &((v2s*)param_simd)[param_id_base+4*output_channel_offset];
-                                             addr5  = &((v2s*)param_simd)[param_id_base+5*output_channel_offset];
-                                             addr6  = &((v2s*)param_simd)[param_id_base+output_channel_offset*(OUTPUTBUFFER-2)];
-                                             addr7  = &((v2s*)param_simd)[param_id_base+output_channel_offset*(OUTPUTBUFFER-1)];
+                                             addr0  = (uint32_t) &((v2s*)param_simd)[param_id_base];
+                                             addr1  = (uint32_t) &((v2s*)param_simd)[param_id_base+1*output_channel_offset];
+                                             addr2  = (uint32_t) &((v2s*)param_simd)[param_id_base+2*output_channel_offset];
+                                             addr3  = (uint32_t) &((v2s*)param_simd)[param_id_base+3*output_channel_offset];
+                                             addr4  = (uint32_t) &((v2s*)param_simd)[param_id_base+4*output_channel_offset];
+                                             addr5  = (uint32_t) &((v2s*)param_simd)[param_id_base+5*output_channel_offset];
+                                             addr6  = (uint32_t) &((v2s*)param_simd)[param_id_base+output_channel_offset*(OUTPUTBUFFER-2)];
+                                             addr7  = (uint32_t) &((v2s*)param_simd)[param_id_base+output_channel_offset*(OUTPUTBUFFER-1)];
 
                  // asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload first weight
                  // asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (x0), "+r" (addr1) : "r" (x0) ); // preload first weight
@@ -2665,10 +2705,10 @@ int NOINLINE Conv2dLayer (
                                             +(w_out+kw_slide_start)* _layer->attributes[LAY_CONV_IN]/2;
                                             for(int kw=kw_slide_start; kw <= kw_slide_stop;kw++)
                                             {
-                                             addr0  = &((v2s*)param_simd)[param_id_base];
-                                             addr1  = &((v2s*)param_simd)[param_id_base+1*output_channel_offset];
-                                             addr6  = &((v2s*)param_simd)[param_id_base+output_channel_offset*2];
-                                             addr7  = &((v2s*)param_simd)[param_id_base+output_channel_offset*3];
+                                             addr0  = (uint32_t) &((v2s*)param_simd)[param_id_base];
+                                             addr1  = (uint32_t) &((v2s*)param_simd)[param_id_base+1*output_channel_offset];
+                                             addr6  = (uint32_t) &((v2s*)param_simd)[param_id_base+output_channel_offset*2];
+                                             addr7  = (uint32_t) &((v2s*)param_simd)[param_id_base+output_channel_offset*3];
 
                  // asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload first weight
                  // asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (x0), "+r" (addr1) : "r" (x0) ); // preload first weight
@@ -2775,8 +2815,8 @@ int NOINLINE Conv2dLayer (
                                             for(int kw=kw_slide_start; kw <= kw_slide_stop;kw++)
                                             {
 
-                                             addr6  = &((v2s*)param_simd)[param_id_base+output_channel_offset*0];
-                                             addr7  = &((v2s*)param_simd)[param_id_base+output_channel_offset*1];
+                                             addr6  = (uint32_t) &((v2s*)param_simd)[param_id_base+output_channel_offset*0];
+                                             addr7  = (uint32_t) &((v2s*)param_simd)[param_id_base+output_channel_offset*1];
 
                  // asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr6) : "r" (x0) ); // preload first weight
                  // asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (x0), "+r" (addr7) : "r" (x0) ); // preload first weight
@@ -3499,8 +3539,8 @@ void NOINLINE TwoLinearLayersAccumulate (
   int outFeatureTiles;
   int outFeaturesSize_remain = outFeaturesSize;
   v2s     * weight_ptr; 
-  v2s     * weight_ptr1=weight1;
-  v2s     * weight_ptr2=weight2;
+  v2s     * weight_ptr1=(v2s*)weight1;
+  v2s     * weight_ptr2=(v2s*)weight2;
   int inFeaturesSizeP2, inFeaturesSizeP4;
   data_t     * inFeatures;
 
@@ -3583,24 +3623,24 @@ void NOINLINE TwoLinearLayersAccumulate (
 
 
 
-      addr0  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 0))];
-      addr1  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 1))];
-      addr2  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 2))];
-      addr3  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 3))];
-      addr4  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 4))];
-      addr5  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 5))];
-      addr6  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 6))];
-      addr7  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 7))];
-      addr8  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 8))];
-      addr9  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 9))];
-      addr10 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+10))];
-      addr11 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+11))];
-      addr12 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+12))];
-      addr13 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+OUTPUTBUFFER-2))];
-      addr14 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+OUTPUTBUFFER-1))];
+      addr0  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 0))];
+      addr1  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 1))];
+      addr2  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 2))];
+      addr3  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 3))];
+      addr4  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 4))];
+      addr5  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 5))];
+      addr6  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 6))];
+      addr7  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 7))];
+      addr8  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 8))];
+      addr9  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 9))];
+      addr10 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+10))];
+      addr11 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+11))];
+      addr12 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+12))];
+      addr13 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+OUTPUTBUFFER-2))];
+      addr14 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+OUTPUTBUFFER-1))];
         asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload first weight
         asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (x0), "+r" (addr1) : "r" (x0) ); // preload first weight
-        in_addr = (((v2s*)inFeatures));
+        in_addr = (uint32_t)(((v2s*)inFeatures));
         for(int i=0; i<inFeaturesSizeP4; i++) {
           v2s inF_temp;//  = ((v2s*)inFeatures)[2*i];
           v2s inF_temp2;// = ((v2s*)inFeatures)[2*i+1];
@@ -3842,14 +3882,14 @@ for (int o_tile=0; o_tile< outFeatureTiles; o_tile++)
         inFeaturesSizeP4 = inFeaturesSizeP2; // input FM tiling
         #endif
       }
-      addr0 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
-      addr1 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
-      addr2 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+2))];
-      addr3 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+3))];
-      addr4 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+4))];
-      addr5 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+5))];
-      addr6 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+6))];
-      addr7 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+7))];
+      addr0 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
+      addr1 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
+      addr2 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+2))];
+      addr3 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+3))];
+      addr4 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+4))];
+      addr5 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+5))];
+      addr6 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+6))];
+      addr7 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+7))];
 
 
         asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload first weight
@@ -3949,16 +3989,16 @@ for (int o_tile=0; o_tile< outFeatureTiles; o_tile++)
           #endif
         }
         // }
-        addr0 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
-        addr1 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
-        addr2 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+2))];
-        addr3 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+3))];
+        addr0 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
+        addr1 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
+        addr2 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+2))];
+        addr3 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+3))];
 
 
        asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload first weight
        asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (x0), "+r" (addr1) : "r" (x0) ); // preload first weight
 
-       in_addr = (((v2s*)inFeatures));
+       in_addr = (uint32_t)(((v2s*)inFeatures));
        for(int i=0; i<inFeaturesSizeP4; i++) {
             v2s inF_temp;//  = ((v2s*)inFeatures)[2*i];
             v2s inF_temp2;// = ((v2s*)inFeatures)[2*i+1];
@@ -4037,8 +4077,8 @@ for (int o_tile=0; o_tile< outFeatureTiles; o_tile++)
           inFeaturesSizeP4 = inFeaturesSizeP2; // input FM tiling
           #endif
         }
-        addr0 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
-        addr1 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
+        addr0 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
+        addr1 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
         // addr2 = &((v2s*)weight)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+2))];
         // addr3 = &((v2s*)weight)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+3))];
         asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload no compute
@@ -4258,21 +4298,21 @@ void NOINLINE TwoLinearLayersAccumulate (
 
 
 
-      addr0  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 0))];
-      addr1  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 1))];
-      addr2  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 2))];
-      addr3  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 3))];
-      addr4  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 4))];
-      addr5  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 5))];
-      addr6  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 6))];
-      addr7  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 7))];
-      addr8  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 8))];
-      addr9  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 9))];
-      addr10 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+10))];
-      addr11 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+11))];
-      addr12 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+12))];
-      addr13 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+OUTPUTBUFFER-2))];
-      addr14 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+OUTPUTBUFFER-1))];
+      addr0  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 0))];
+      addr1  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 1))];
+      addr2  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 2))];
+      addr3  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 3))];
+      addr4  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 4))];
+      addr5  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 5))];
+      addr6  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 6))];
+      addr7  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 7))];
+      addr8  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 8))];
+      addr9  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 9))];
+      addr10 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+10))];
+      addr11 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+11))];
+      addr12 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+12))];
+      addr13 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+OUTPUTBUFFER-2))];
+      addr14 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+OUTPUTBUFFER-1))];
         // asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload first weight
         // asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (x0), "+r" (addr1) : "r" (x0) ); // preload first weight
         in_addr = (((v2s*)inFeatures));
@@ -4517,14 +4557,14 @@ for (int o_tile=0; o_tile< outFeatureTiles; o_tile++)
         inFeaturesSizeP4 = inFeaturesSizeP2; // input FM tiling
         #endif
       }
-      addr0 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
-      addr1 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
-      addr2 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+2))];
-      addr3 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+3))];
-      addr4 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+4))];
-      addr5 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+5))];
-      addr6 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+6))];
-      addr7 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+7))];
+      addr0 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
+      addr1 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
+      addr2 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+2))];
+      addr3 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+3))];
+      addr4 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+4))];
+      addr5 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+5))];
+      addr6 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+6))];
+      addr7 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+7))];
 
 
         // asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload first weight
@@ -4624,10 +4664,10 @@ for (int o_tile=0; o_tile< outFeatureTiles; o_tile++)
           #endif
         }
         // }
-        addr0 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
-        addr1 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
-        addr2 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+2))];
-        addr3 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+3))];
+        addr0 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
+        addr1 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
+        addr2 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+2))];
+        addr3 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+3))];
 
 
        // asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload first weight
@@ -4714,8 +4754,8 @@ for (int o_tile=0; o_tile< outFeatureTiles; o_tile++)
           inFeaturesSizeP4 = inFeaturesSizeP2; // input FM tiling
           #endif
         }
-        addr0 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
-        addr1 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
+        addr0 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
+        addr1 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
         // addr2 = &((v2s*)weight)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+2))];
         // addr3 = &((v2s*)weight)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+3))];
         // asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload no compute
@@ -4747,26 +4787,22 @@ for (int o_tile=0; o_tile< outFeatureTiles; o_tile++)
 
     for (int o_tile=0; o_tile< outFeatureTiles; o_tile++) 
     {
+     // iterate through both input FMs
      for(int turn=0; turn<2; turn++) {
       if(turn==0) {
         weight_ptr = &weight_ptr1[0];
         inFeaturesSizeP2 = inFeaturesSize1/2;
         inFeatures = inFeatures1;
-        #ifdef FMINTILING
-        inFeaturesSizeP4 = inFeaturesSizeP2/2; // input FM tiling
-        #else
-        inFeaturesSizeP4 = inFeaturesSizeP2; // input FM tiling
-        #endif
       } else {
         weight_ptr = &weight_ptr2[0];
         inFeatures = inFeatures2;
         inFeaturesSizeP2 = inFeaturesSize2/2;
-        #ifdef FMINTILING
-        inFeaturesSizeP4 = inFeaturesSizeP2/2; // input FM tiling
-        #else
-        inFeaturesSizeP4 = inFeaturesSizeP2; // input FM tiling
-        #endif
       }
+      #ifdef FMINTILING
+      inFeaturesSizeP4 = inFeaturesSizeP2/2; // input FM tiling
+      #else
+      inFeaturesSizeP4 = inFeaturesSizeP2; // input FM tiling
+      #endif
       temp0 = ((int32_t)bias_ptr1[o_tile*outFeaturesPerTile+0]+(int32_t)bias_ptr2[o_tile*outFeaturesPerTile+0])<<(q_fraqP1);
       for(int i=0; i<inFeaturesSizeP2; i++) {
         v2s inF_temp = ((v2s*)inFeatures)[i];
@@ -4940,25 +4976,8 @@ void NOINLINE TwoLinearLayersAccumulate (
    }
 #endif
 
-/** @brief Re-Quantize and apply Activation Function
- *
- *  @param value Input Value
- *  @param activationFunction Activation Type
- *  @return activation Result
- */
-   inline int shiftAndAct(int value, int activationFunction) {
-    int temp;
-#ifdef DOACTONTHEFLY
-      temp = value>>(q_fraqP1); // TODO merging shifting and tanh/sigmoid instruction
-      switch(activationFunction) {
-        case ACT_NONE: return temp; break;
-        case ACT_TANH: return generic_tanh(temp); break;
-        case ACT_SIG:  return generic_sig(temp); break;
-      }
-#else
-      return value>>(q_fraqP1);
-#endif
-    }
+
+
 
 
 /** @brief Calculates point-wise Addition of Tensors (A+=B)
@@ -5173,45 +5192,7 @@ void NOINLINE TwoLinearLayersAccumulate (
 }
 
 
-/** @brief Sigmoid Activation Function
- *
- *  @param value input varialbe
- *  @return sigmoid of the input variable
- */
-inline data_t sig(data_t value) {
-  data_t a = value;
-  unsigned int lutsize = 16;
-  unsigned int value1 = 4096;
-  unsigned int value0p999 = 4095;
-  int m;
-  int q;
-  int q_signed;
-  unsigned short sign = a<0 ? 1 : 0;
-  int tmp;
-  int mac_result;
-  int mac_result_signed;
-  data_t abs_a;
-  if(sign==0x1) {
-    abs_a = -a;
-  } else {
-    abs_a = (a);
-  }
 
-  tmp = abs_a>>(13-3); 
-  if(tmp>=lutsize) {
-    return (sign)?(data_t)0: (data_t)value1;
-  } else {
-    m = lut_sig_m[tmp];
-    q =lut_sig_q[tmp];
-    mac_result = (m*abs_a+q)>>12;
-    mac_result_signed = (sign==1)? ~mac_result : mac_result;
-    if(sign==1) {
-       return  (value0p999+(mac_result_signed)); // 1-(mx+q)=4096+(~mac_result+1)=4095+(~mac_result)
-    } else {
-      return mac_result_signed;
-    }
-  }
-}
 
 
 
@@ -5327,30 +5308,7 @@ inline data_t sig(data_t value) {
 // }
 
 
-/** @brief Taylor Extension of the e^x function
- *
- *  @param n number of taylor coefficients
- *  @param x input value
- *  @return approximate value of e^x
- */
-      inline float  ALWAYS_INLINE  expTailor(int n, float x) 
-      { 
-        float sum = 1.0f;
 
-        for (int i = n - 1; i > 0; --i ) 
-          sum = 1 + x * sum / i; 
-
-        return sum; 
-      } 
-
-/** @brief Signum Function
- *
- *  @param value
- *  @return sgn(value)
- */
-inline data_t ALWAYS_INLINE  Sgn(data_t value) { // zero is positive!
-  return (value >= (data_t)0.0)?+1:-1;
-}
 
 
 /** @brief Calculates an RNN layer
@@ -5689,7 +5647,30 @@ void printFloat(data_t value) {
 
 
 }
+/** @brief Taylor Extension of the e^x function
+ *
+ *  @param n number of taylor coefficients
+ *  @param x input value
+ *  @return approximate value of e^x
+ */
+      inline float  ALWAYS_INLINE  expTailor(int n, float x) 
+      { 
+        float sum = 1.0f;
 
+        for (int i = n - 1; i > 0; --i ) 
+          sum = 1 + x * sum / i; 
+
+        return sum; 
+      } 
+
+/** @brief Signum Function
+ *
+ *  @param value
+ *  @return sgn(value)
+ */
+inline data_t ALWAYS_INLINE  Sgn(data_t value) { // zero is positive!
+  return (value >= (data_t)0.0)?+1:-1;
+}
 #ifdef ASIP
 inline data_t Min(data_t a, data_t b) {return (((a)<(b))?(a):(b));}
 inline data_t Max(data_t a, data_t b) {return (((a)>(b))?(a):(b));}
