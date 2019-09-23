@@ -91,6 +91,42 @@ inline data_t sig(data_t value) {
   }
 }
 
+/** @brief Tangent Hyperbolic
+ *
+ *  @param value input variable
+ *  @return tangent hypberbolic of the input variable
+ */
+  inline data_t Tanh(data_t value) {
+    data_t x = value;
+    unsigned int lutsize = 16;
+    unsigned int value1 = 4096;
+    unsigned int value0p999 = 4095;
+    int m;
+    int q;
+    int q_signed;
+    unsigned short sign = (x>>31) & 0x1;
+    int id;
+    int mac_result;
+    int mac_result_signed;
+    int abs_x;
+    if(sign==0x1) {
+      abs_x = -x;
+    } else {
+      abs_x = x;
+    }
+    id = abs_x>>(13-3); // get index of LUT
+    if(id>=lutsize) {
+       return (sign==0x1)?(int)-value1: (int)value1;
+    } else {
+      m = lut_Tanh_m[id];
+      q =lut_Tanh_q[id];
+      mac_result = (m*abs_x+q)>>12;
+      mac_result_signed = (sign==1)? ~mac_result : mac_result;
+      return mac_result_signed;
+    }
+}
+
+
 /** @brief Runs a neural network
  *
  *  Iterates through all the layers while passing the intermediate FM with a double 
@@ -606,14 +642,14 @@ void NOINLINE LinearLayer (
 
           // }
           // printf("wght=%i, addr before=%i (+%i)=%i\n", weight, addr0, inFeaturesSizeP2*outFeaturesPerTile, addr0+4*inFeaturesSizeP2*outFeaturesPerTile);
-            addr0 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
-            addr1 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
-            addr2 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+2))];
-            addr3 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+3))];
-            addr4 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+4))];
-            addr5 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+5))];
-            addr6 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+6))];
-            addr7 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+7))];
+            addr0 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
+            addr1 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
+            addr2 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+2))];
+            addr3 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+3))];
+            addr4 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+4))];
+            addr5 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+5))];
+            addr6 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+6))];
+            addr7 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+7))];
 
 
           asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload first weight
@@ -854,7 +890,7 @@ void NOINLINE LinearLayer (
   #endif
 
   data_t  * bias_ptr   = bias;
-  v2s     * weight_ptr = weight;
+  v2s     * weight_ptr = (v2s*)weight;
   data_t  * outFeatures_ptr = outFeatures;
   int outFeaturesPerTile = 1;
 
@@ -926,26 +962,26 @@ void NOINLINE LinearLayer (
       temp13 = (int32_t)bias_ptr[o_tile*outFeaturesPerTile+OUTPUTBUFFER-2]<<(q_fraqP1);
       temp14 = (int32_t)bias_ptr[o_tile*outFeaturesPerTile+OUTPUTBUFFER-1]<<(q_fraqP1);
 
-      addr0  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 0))];
-      addr1  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 1))];
-      addr2  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 2))];
-      addr3  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 3))];
-      addr4  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 4))];
-      addr5  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 5))];
-      addr6  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 6))];
-      addr7  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 7))];
-      addr8  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 8))];
-      addr9  = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 9))];
-      addr10 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+10))];
-      addr11 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+11))];
-      addr12 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+12))];
-      addr13 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+OUTPUTBUFFER-2))];
-      addr14 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+OUTPUTBUFFER-1))];
+      addr0  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 0))];
+      addr1  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 1))];
+      addr2  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 2))];
+      addr3  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 3))];
+      addr4  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 4))];
+      addr5  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 5))];
+      addr6  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 6))];
+      addr7  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 7))];
+      addr8  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 8))];
+      addr9  = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+ 9))];
+      addr10 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+10))];
+      addr11 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+11))];
+      addr12 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+12))];
+      addr13 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+OUTPUTBUFFER-2))];
+      addr14 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+OUTPUTBUFFER-1))];
 
           // asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload first weight
           // asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (x0), "+r" (addr1) : "r" (x0) ); // preload first weight
 
-          in_addr = (((v2s*)inFeatures));
+          in_addr = (uint32_t)(((v2s*)inFeatures));
           for(int i=0; i<inFeaturesSizeP4; i++) {
               v2s inF_temp;//  = ((v2s*)inFeatures)[2*i];
               v2s inF_temp2;// = ((v2s*)inFeatures)[2*i+1];
@@ -1247,16 +1283,16 @@ void NOINLINE LinearLayer (
             temp3 = (int32_t)bias_ptr[o_tile*outFeaturesPerTile+3]<<(q_fraqP1);
 
           // }
-            addr0 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
-            addr1 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
-            addr2 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+2))];
-            addr3 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+3))];
+            addr0 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
+            addr1 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
+            addr2 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+2))];
+            addr3 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+3))];
 
 
           // asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload first weight
           // asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (x0), "+r" (addr1) : "r" (x0) ); // preload first weight
 
-          in_addr = (((v2s*)inFeatures));
+          in_addr = (uint32_t) (((v2s*)inFeatures));
           for(int i=0; i<inFeaturesSizeP4; i++) {
               v2s inF_temp;//  = ((v2s*)inFeatures)[2*i];
               v2s inF_temp2;// = ((v2s*)inFeatures)[2*i+1];
@@ -1312,8 +1348,8 @@ void NOINLINE LinearLayer (
           // temp2 = (int32_t)bias[o_tile*outFeaturesPerTile+2]<<(q_fraqP1);
           // temp3 = (int32_t)bias[o_tile*outFeaturesPerTile+3]<<(q_fraqP1);
           // }
-            addr0 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
-            addr1 = &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
+            addr0 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
+            addr1 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
           // addr2 = &((v2s*)weight)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+2))];
           // addr3 = &((v2s*)weight)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+3))];
           // asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload no compute
@@ -4213,8 +4249,8 @@ void NOINLINE TwoLinearLayersAccumulate (
   int outFeatureTiles;
   int outFeaturesSize_remain = outFeaturesSize;
   v2s     * weight_ptr; 
-  v2s     * weight_ptr1=weight1;
-  v2s     * weight_ptr2=weight2;
+  v2s     * weight_ptr1=(v2s*)weight1;
+  v2s     * weight_ptr2=(v2s*)weight2;
   int inFeaturesSizeP2, inFeaturesSizeP4;
   data_t     * inFeatures;
 
@@ -4315,7 +4351,7 @@ void NOINLINE TwoLinearLayersAccumulate (
       addr14 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+OUTPUTBUFFER-1))];
         // asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload first weight
         // asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (x0), "+r" (addr1) : "r" (x0) ); // preload first weight
-        in_addr = (((v2s*)inFeatures));
+        in_addr = (uint32_t)(((v2s*)inFeatures));
         for(int i=0; i<inFeaturesSizeP4; i++) {
           v2s inF_temp;//  = ((v2s*)inFeatures)[2*i];
           v2s inF_temp2;// = ((v2s*)inFeatures)[2*i+1];
@@ -4673,7 +4709,7 @@ for (int o_tile=0; o_tile< outFeatureTiles; o_tile++)
        // asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (x0), "+r" (addr0) : "r" (x0) ); // preload first weight
        // asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (x0), "+r" (addr1) : "r" (x0) ); // preload first weight
 
-       in_addr = (((v2s*)inFeatures));
+       in_addr = (uint32_t)(((v2s*)inFeatures));
        for(int i=0; i<inFeaturesSizeP4; i++) {
             v2s inF_temp;//  = ((v2s*)inFeatures)[2*i];
             v2s inF_temp2;// = ((v2s*)inFeatures)[2*i+1];
@@ -5156,40 +5192,6 @@ void NOINLINE TwoLinearLayersAccumulate (
 
 
 
-/** @brief Tangent Hyperbolic
- *
- *  @param value input variable
- *  @return tangent hypberbolic of the input variable
- */
-  inline data_t Tanh(data_t value) {
-    data_t x = value;
-    unsigned int lutsize = 16;
-    unsigned int value1 = 4096;
-    unsigned int value0p999 = 4095;
-    int m;
-    int q;
-    int q_signed;
-    unsigned short sign = (x>>31) & 0x1;
-    int id;
-    int mac_result;
-    int mac_result_signed;
-    int abs_x;
-    if(sign==0x1) {
-      abs_x = -x;
-    } else {
-      abs_x = x;
-    }
-    id = abs_x>>(13-3); // get index of LUT
-    if(id>=lutsize) {
-       return (sign==0x1)?(int)-value1: (int)value1;
-    } else {
-      m = lut_Tanh_m[id];
-      q =lut_Tanh_q[id];
-      mac_result = (m*abs_x+q)>>12;
-      mac_result_signed = (sign==1)? ~mac_result : mac_result;
-      return mac_result_signed;
-    }
-}
 
 
 
@@ -5699,4 +5701,14 @@ inline int pulpRNNExt_sig(int sig_value) {
   return tmp;
 }
 
+#endif
+
+#ifdef PULP_USETANHSIG
+/// Select tanh function to be used
+inline data_t generic_tanh(data_t value) {return pulpRNNExt_tanh(value);}
+/// Select sigmoid function to be used
+inline data_t generic_sig(data_t value) {return pulpRNNExt_sig(value);}
+#else
+inline data_t generic_tanh(data_t value) {return Tanh(value);}
+inline data_t generic_sig(data_t value) {return sig(value);}
 #endif

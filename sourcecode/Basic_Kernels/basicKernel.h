@@ -156,10 +156,24 @@ inline data_t tzscale_tanh(data_t x) {return ext_act(x,0);}
 inline data_t tzscale_sig(data_t x) {return ext_act(x,1);}
 inline int32_t tzscale_tanh(int32_t x) {return ext_act(x,0);}
 inline int32_t tzscale_sig(int32_t x) {return ext_act(x,1);}
+#else 
+
 #endif
+inline data_t Tanh(data_t value);
+inline data_t sig(data_t value);
 // #ifndef SIMD
 // typedef int v2s;
 // #endif
+#endif
+
+#ifdef PULP_USETANHSIG
+/// Select tanh function to be used
+inline data_t generic_tanh(data_t value);
+/// Select sigmoid function to be used
+inline data_t generic_sig(data_t value);
+#else
+inline data_t generic_tanh(data_t value);
+inline data_t generic_sig(data_t value);
 #endif
 
 #define BUFFER_SIZE 2048
@@ -358,14 +372,14 @@ int NOINLINE Conv2dLayer (
     data_t * __restrict__ outFeatures);
 
 // inline float  ALWAYS_INLINE  expTailor(int n, float x);
-inline data_t  ALWAYS_INLINE Tanh(data_t value);
+
 // inline v2s ALWAYS_INLINE Tanh_SIMD(v2s value);
 // inline data_t ALWAYS_INLINE Sgn(data_t value);
 void NOINLINE SigLayer (
         // Layer Attributes
     int TensorSize,
     data_t * __restrict__ Features);
-inline data_t sig(data_t value);
+
 
 // inline v2s sig_SIMD(v2s value);
 

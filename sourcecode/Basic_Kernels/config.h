@@ -20,29 +20,19 @@
 // #define DEBUG_LSTM
 
 /// Print out results
-#define PRINTF_ACTIVE
+ #define PRINTF_ACTIVE
 
 
 
 /// Output FM tiling
-// #define FMOUTTILING
 
 /// Use lw+incr+sdotp VLIW extension
 #define VLIWEXT
+#define MANUALLOOPUNFOLDING
 /// Do activation on the fly
 #define DOACTONTHEFLY
 /// On RISC-Y use TANH and sigmoid extension
 #define PULP_USETANHSIG
 
-
-#ifdef PULP_USETANHSIG
-/// Select tanh function to be used
-#define generic_tanh(value) pulpRNNExt_tanh(value)
-/// Select sigmoid function to be used
-#define generic_sig(value) pulpRNNExt_sig(value);
-#else
-#define generic_tanh(value) Tanh(value)
-#define generic_sig(value) sig(value);
-#endif
 
 #endif

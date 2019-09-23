@@ -1,4 +1,7 @@
-> Copyright (c) 2019 ETH Zurich, Integrated System Laboratory, Renzo Andri > This is the open sourced version of the IIS internal repo https://iis-git.ee.ethz.ch/andri/RNNASIP.git 
+> Copyright (c) 2019 ETH Zurich, Integrated System Laboratory, Renzo Andri 
+
+> This is the open sourced version of the IIS internal repo https://iis-git.ee.ethz.ch/andri/RNNASIP.git 
+
 
 # RNN ASIP
 This is the main repository for the RNN Extension for PULP and tzscale (Synopsys)
