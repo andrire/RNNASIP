@@ -1,7 +1,4 @@
-> Copyright (c) 2019 ETH Zurich, Integrated System Laboratory, Renzo Andri 
-
-> This is the open sourced version of the IIS internal repo https://iis-git.ee.ethz.ch/andri/RNNASIP.git 
-
+> Copyright (c) 2019 ETH Zurich, Integrated System Laboratory, Renzo Andri > This is the open sourced version of the IIS internal repo https://iis-git.ee.ethz.ch/andri/RNNASIP.git 
 
 # RNN ASIP
 This is the main repository for the RNN Extension for PULP and tzscale (Synopsys)
@@ -40,7 +37,7 @@ Clone the `pulp-sdk.git` (check README for dependencies):
 git clone https://github.com/pulp-platform/pulp-sdk.git
 cd pulp-sdk
 # checkout latest tested SDK commit
-git checkout f5f0d18ba7b589e3998425ea265bcc327e4f033f
+git checkout tags/2019.10.01
 git pull origin master
 # within the IIS network: export PULP_RISCV_GCC_TOOLCHAIN=/usr/scratch/larain5/haugoug/public/pulp_riscv_gcc_renzo.3/
 export PULP_RISCV_GCC_TOOLCHAIN=<path to the folder containing the bin folder of the toolchain>

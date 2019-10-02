@@ -4053,10 +4053,10 @@ for (int o_tile=0; o_tile< outFeatureTiles; o_tile++)
             asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (temp2),  "+r" (addr0) : "r" (inF_temp) );
             asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (temp3),  "+r" (addr1) : "r" (inF_temp) );
 #ifdef FMINTILING
-            asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (temp0),  "+r" (addr1) : "r" (inF_temp2) );
-            asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (temp1),  "+r" (addr2) : "r" (inF_temp2) );
-            asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (temp2),  "+r" (addr3) : "r" (inF_temp2) );
-            asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (temp3),  "+r" (addr0) : "r" (inF_temp2) );
+            asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (temp0),  "+r" (addr2) : "r" (inF_temp2) );
+            asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (temp1),  "+r" (addr3) : "r" (inF_temp2) );
+            asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (temp2),  "+r" (addr0) : "r" (inF_temp2) );
+            asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (temp3),  "+r" (addr1) : "r" (inF_temp2) );
 #endif
           // }
           }
@@ -4064,10 +4064,10 @@ for (int o_tile=0; o_tile< outFeatureTiles; o_tile++)
         if(inFeaturesSizeP2%2==1) { // add contribution of left over input channel (input channels not multiple of 4)
             v2s inF_temp;//  = ((v2s*)inFeatures)[2*i];
             asm volatile("p.lw %0, 4(%1!)" : "=r" (inF_temp), "+r" (in_addr));  // v2s inF_temp  = ((v2s*)inFeatures)[2i+0];
-            asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (temp0),  "+r" (addr1) : "r" (inF_temp) );
-            asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (temp1),  "+r" (addr2) : "r" (inF_temp) );
-            asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (temp2),  "+r" (addr3) : "r" (inF_temp) );
-            asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (temp3),  "+r" (addr0) : "r" (inF_temp) );
+            asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (temp0),  "+r" (addr2) : "r" (inF_temp) );
+            asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (temp1),  "+r" (addr3) : "r" (inF_temp) );
+            asm volatile("pl.sdotsp.h.0 %0, %1, %2" : "+r" (temp2),  "+r" (addr0) : "r" (inF_temp) );
+            asm volatile("pl.sdotsp.h.1 %0, %1, %2" : "+r" (temp3),  "+r" (addr1) : "r" (inF_temp) );
 
           }
 # endif
@@ -4578,20 +4578,20 @@ for (int o_tile=0; o_tile< outFeatureTiles; o_tile++)
       weight_ptr = weight_ptr1;
       inFeaturesSizeP2 = inFeaturesSize1/2;
       inFeatures = inFeatures1;
-        #ifdef FMINTILING
-        inFeaturesSizeP4 = inFeaturesSizeP2/2; // input FM tiling
-        #else
+        // #ifdef FMINTILING
+        // inFeaturesSizeP4 = inFeaturesSizeP2/2; // input FM tiling
+        // #else
         inFeaturesSizeP4 = inFeaturesSizeP2; // input FM tiling
-        #endif
+        // #endif
       } else {
         weight_ptr = weight_ptr2;
         inFeatures = inFeatures2;
         inFeaturesSizeP2 = inFeaturesSize2/2;
-        #ifdef FMINTILING
-        inFeaturesSizeP4 = inFeaturesSizeP2/2; // input FM tiling
-        #else
+        // #ifdef FMINTILING
+        // inFeaturesSizeP4 = inFeaturesSizeP2/2; // input FM tiling
+        // #else
         inFeaturesSizeP4 = inFeaturesSizeP2; // input FM tiling
-        #endif
+        // #endif
       }
       addr0 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
       addr1 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
@@ -4775,20 +4775,20 @@ for (int o_tile=0; o_tile< outFeatureTiles; o_tile++)
           weight_ptr = &weight_ptr1[0];
           inFeaturesSizeP2 = inFeaturesSize1/2;
           inFeatures = inFeatures1;
-          #ifdef FMINTILING
-          inFeaturesSizeP4 = inFeaturesSizeP2/2; // input FM tiling
-          #else
+          // #ifdef FMINTILING
+          // inFeaturesSizeP4 = inFeaturesSizeP2/2; // input FM tiling
+          // #else
           inFeaturesSizeP4 = inFeaturesSizeP2; // input FM tiling
-          #endif
+          // #endif
         } else {
           weight_ptr = &weight_ptr2[0];
           inFeatures = inFeatures2;
           inFeaturesSizeP2 = inFeaturesSize2/2;
-          #ifdef FMINTILING
-          inFeaturesSizeP4 = inFeaturesSizeP2/2; // input FM tiling
-          #else
+          // #ifdef FMINTILING
+          // inFeaturesSizeP4 = inFeaturesSizeP2/2; // input FM tiling
+          // #else
           inFeaturesSizeP4 = inFeaturesSizeP2; // input FM tiling
-          #endif
+          // #endif
         }
         addr0 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+0))];
         addr1 = (uint32_t) &((v2s*)weight_ptr)[(inFeaturesSizeP2*(o_tile*outFeaturesPerTile+1))];
@@ -4834,11 +4834,11 @@ for (int o_tile=0; o_tile< outFeatureTiles; o_tile++)
         inFeatures = inFeatures2;
         inFeaturesSizeP2 = inFeaturesSize2/2;
       }
-      #ifdef FMINTILING
-      inFeaturesSizeP4 = inFeaturesSizeP2/2; // input FM tiling
-      #else
+      // #ifdef FMINTILING
+      // inFeaturesSizeP4 = inFeaturesSizeP2/2; // input FM tiling
+      // #else
       inFeaturesSizeP4 = inFeaturesSizeP2; // input FM tiling
-      #endif
+      // #endif
       temp0 = ((int32_t)bias_ptr1[o_tile*outFeaturesPerTile+0]+(int32_t)bias_ptr2[o_tile*outFeaturesPerTile+0])<<(q_fraqP1);
       for(int i=0; i<inFeaturesSizeP2; i++) {
         v2s inF_temp = ((v2s*)inFeatures)[i];
