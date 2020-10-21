@@ -8,8 +8,8 @@ This is the main repository for the RNN Extension for PULP and tzscale (Synopsys
 
 The project has the following sub-repos and dependencies:
 
-- RNN Pulpissimo (https://github.com/pulp-platform/pulpissimo/tree/rnnext (80d493eaef950285a0e4f5d1e1afd4e6c0074872) or internal https://iis-git.ee.ethz.ch/andri/rnn-pulpissimo.git): Pulpissimo extended by special instructions
-- RNN RISC-V core (https://github.com/pulp-platform/riscv/tree/rnn_extension (ad1680c2ec65ea65b8e342c16131298b290c9e34) or internal https://iis-git.ee.ethz.ch/andri/rnn-riscv.git): Includes the RISC-V core with the RNN Extensions.
+- RNN Pulpissimo (https://github.com/andrire/RNNASIP-pulpissimo (2b57508f183bbe005cce0b67f2a28c6e33d3270c) or internal https://iis-git.ee.ethz.ch/andri/rnn-pulpissimo.git): Pulpissimo extended by special instructions
+- RNN RISC-V core (https://github.com/andrire/RNNASIP-riscvcore (124eabc8d426fd0491287df6dd6133932ccda706) or internal https://iis-git.ee.ethz.ch/andri/rnn-riscv.git): Includes the RISC-V core with the RNN Extensions.
 - RISC-V toolchain with RNN-Extensions (https://github.com/pulp-platform/pulp-riscv-gnu-toolchain/commit/5d39fedd658d81a3ea9765cf9bd03a445b292e4b)
 - The PULP SDK and ISS Simulator (https://github.com/pulp-platform/pulp-sdk/releases/tag/2019.10.01)
 
